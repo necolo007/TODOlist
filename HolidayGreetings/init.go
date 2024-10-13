@@ -46,3 +46,12 @@ func (m *module) Init() {
 	}
 	m.cron = cron.New()
 }
+func (m *module) PostInit() {}
+
+func (m *module) Serve(server *hub.Server) {
+	m.server = server
+	if _, err := m.cron.AddFunc("1 0 * * *", m.sendHolidayWishes); err != nil {
+		panic(err)
+	}
+	m.cron.Start()
+}
