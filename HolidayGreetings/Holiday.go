@@ -51,6 +51,42 @@ func (m *module) sendNationalDayWishes() {
 	}
 }
 
+func (m *module) sendSpringFestivalWishes() {
+	today := time.Now()
+	_, month, day := DateConvert(int64(today.Year()), 1, 1)
+	if int64(today.Month()) == month && int64(today.Day()) == day {
+		List := m.GenerateList(context.Background())
+		templateMessageModule, _ := hub.GetModule(hub.NewModuleID("atom", "templateMessage"))
+		templateMessageSender := templateMessageModule.Instance.(*templateMessage.Module)
+		wishesCount := len(m.wishes.NDWishes)
+		const MaxWishLen = 170
+		for i, listStu := range List {
+			unionID := hub.ConvertHDUIdToWechatUnionId(context.Background(), listStu.StaffId)
+			if unionID != "" {
+				fullMsg := fmt.Sprintf("\n%s同学！祝你国庆快乐呀！\n"+m.wishes.NDWishes[i%wishesCount], listStu.StaffName)
+				msgList := utils.AddTip(utils.CutMsg(fullMsg, MaxWishLen*3, 0), "接上条\n")
+				for _, msg := range msgList {
+					fmt.Println(msg)
+					templateMessageSender.PushMessage(&templateMessage.TemplateMessage{
+						Message: &message.TemplateMessage{
+							ToUser: unionID,
+							Data: map[string]*message.TemplateDataItem{
+								"keyword1": {
+									Value: "叮咚~这是一条新春祝福!\n\n",
+								},
+								"keyword2": {
+									Value: msg,
+								},
+							},
+							TemplateID: "_HtuD7TrFKxquwizJwICXv4sWg5AeZBvaHBIRvYKeKk",
+						},
+					})
+				}
+			}
+		}
+	}
+}
+
 func (m *module) GenerateList(ctx context.Context) []*staffv1.PersonInfo {
 	var infos []*staffv1.PersonInfo
 	err := transfer.Get(ctx, "salmon_base", "/student/Holidays", nil, utils.Someone).
