@@ -63,7 +63,7 @@ func (m *module) sendSpringFestivalWishes() {
 		for i, listStu := range List {
 			unionID := hub.ConvertHDUIdToWechatUnionId(context.Background(), listStu.StaffId)
 			if unionID != "" {
-				fullMsg := fmt.Sprintf("\n%s同学！祝你国庆快乐呀！\n"+m.wishes.NDWishes[i%wishesCount], listStu.StaffName)
+				fullMsg := fmt.Sprintf("\n%s同学！祝你新春快乐呀！\n"+m.wishes.NDWishes[i%wishesCount], listStu.StaffName)
 				msgList := utils.AddTip(utils.CutMsg(fullMsg, MaxWishLen*3, 0), "接上条\n")
 				for _, msg := range msgList {
 					fmt.Println(msg)
